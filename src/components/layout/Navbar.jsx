@@ -12,6 +12,7 @@ import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import LockResetOutlinedIcon from '@mui/icons-material/LockResetOutlined';
 
 import useAuth from '../../hooks/useAuth.js';
 import { roleLabel } from '../../utils/permissions.js';
@@ -34,6 +35,11 @@ export default function Navbar({ title, leftSlot }) {
     setAnchorEl(null);
     await logout();
     navigate('/login', { replace: true });
+  };
+
+  const handleChangePassword = () => {
+    setAnchorEl(null);
+    navigate('/change-password');
   };
 
   return (
@@ -69,6 +75,12 @@ export default function Navbar({ title, leftSlot }) {
             </Typography>
           </Box>
           <Divider />
+          <MenuItem onClick={handleChangePassword}>
+            <ListItemIcon>
+              <LockResetOutlinedIcon fontSize="small" />
+            </ListItemIcon>
+            Change password
+          </MenuItem>
           <MenuItem onClick={handleLogout}>
             <ListItemIcon>
               <LogoutOutlinedIcon fontSize="small" />

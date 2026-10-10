@@ -4,6 +4,9 @@ import MainLayout from '../components/layout/MainLayout.jsx';
 import ProtectedRoute from '../components/layout/ProtectedRoute.jsx';
 
 import Login from '../pages/Login.jsx';
+import ForgotPassword from '../pages/ForgotPassword.jsx';
+import ResetPassword from '../pages/ResetPassword.jsx';
+import ChangePassword from '../pages/ChangePassword.jsx';
 import Dashboard from '../pages/Dashboard.jsx';
 import Inventory from '../pages/Inventory.jsx';
 import Purchases from '../pages/Purchases.jsx';
@@ -11,6 +14,8 @@ import Transfers from '../pages/Transfers.jsx';
 import Assignments from '../pages/Assignments.jsx';
 import Expenditures from '../pages/Expenditures.jsx';
 import UserManagement from '../pages/UserManagement.jsx';
+import Bases from '../pages/Bases.jsx';
+import EquipmentTypes from '../pages/EquipmentTypes.jsx';
 
 // Wraps a page with auth + role guarding (screenKey) and the shared
 // sidebar/navbar shell, with a per-page title in the navbar.
@@ -26,6 +31,19 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* No screenKey: every authenticated role can reach this, and it's the
+          one page ProtectedRoute lets through while mustChangePassword is true. */}
+      <Route
+        path="/change-password"
+        element={
+          <Page title="Change Password">
+            <ChangePassword />
+          </Page>
+        }
+      />
 
       <Route
         path="/dashboard"
@@ -80,6 +98,22 @@ export default function AppRoutes() {
         element={
           <Page screenKey="users" title="User Management">
             <UserManagement />
+          </Page>
+        }
+      />
+      <Route
+        path="/bases"
+        element={
+          <Page screenKey="bases" title="Bases">
+            <Bases />
+          </Page>
+        }
+      />
+      <Route
+        path="/equipment-types"
+        element={
+          <Page screenKey="equipmentTypes" title="Equipment Types">
+            <EquipmentTypes />
           </Page>
         }
       />

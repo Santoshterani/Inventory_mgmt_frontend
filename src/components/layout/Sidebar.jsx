@@ -13,6 +13,8 @@ import SwapHorizOutlinedIcon from '@mui/icons-material/SwapHorizOutlined';
 import AssignmentIndOutlinedIcon from '@mui/icons-material/AssignmentIndOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
+import ApartmentOutlinedIcon from '@mui/icons-material/ApartmentOutlined';
+import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 
 import useAuth from '../../hooks/useAuth.js';
@@ -26,6 +28,8 @@ const NAV_ITEMS = [
   { key: 'assignments', label: 'Assignments', to: '/assignments', icon: AssignmentIndOutlinedIcon },
   { key: 'expenditures', label: 'Expenditures', to: '/expenditures', icon: ReceiptLongOutlinedIcon },
   { key: 'users', label: 'User Management', to: '/users', icon: GroupOutlinedIcon },
+  { key: 'bases', label: 'Bases', to: '/bases', icon: ApartmentOutlinedIcon },
+  { key: 'equipmentTypes', label: 'Equipment Types', to: '/equipment-types', icon: CategoryOutlinedIcon },
 ];
 
 export const SIDEBAR_WIDTH = 248;
@@ -94,8 +98,24 @@ export default function Sidebar() {
       </List>
       <Divider sx={{ borderColor: 'rgba(245,244,240,0.12)' }} />
       <Box sx={{ px: 2.5, py: 2 }}>
-        <Typography variant="caption" sx={{ color: 'rgba(245,244,240,0.5)' }}>
-          v1.0 · Initial framework
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'rgba(245,244,240,0.5)',
+            display: 'block',
+          }}
+        >
+          Developed by Santosh Terani
+        </Typography>
+
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'rgba(245,244,240,0.5)',
+            display: 'block',
+          }}
+        >
+          All Copyrights reserved
         </Typography>
       </Box>
     </Box>

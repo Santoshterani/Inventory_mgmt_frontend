@@ -18,6 +18,12 @@ export default function ProtectedRoute({ children, screenKey }) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
+  // A temporary or just-reset password must be changed before anything
+  // else is usable — mirrors the same rule the backend enforces server-side.
+  if (user.mustChangePassword && location.pathname !== '/change-password') {
+    return <Navigate to="/change-password" replace />;
+  }
+
   // This only hides screens the user isn't expected to use; the backend is the
   // real authority and re-checks role + base scope on every request.
   if (screenKey && !canAccessScreen(user.role, screenKey)) {

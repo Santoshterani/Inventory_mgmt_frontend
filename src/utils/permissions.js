@@ -15,6 +15,8 @@ const SCREEN_ACCESS = {
   assignments: [ROLES.ADMIN, ROLES.BASE_COMMANDER],
   expenditures: [ROLES.ADMIN, ROLES.BASE_COMMANDER],
   users: [ROLES.ADMIN, ROLES.BASE_COMMANDER], //only admin can create users, but base commander can view users
+  bases: [ROLES.ADMIN],
+  equipmentTypes: [ROLES.ADMIN],
   auditLogs: [ROLES.ADMIN],
 };
 

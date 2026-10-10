@@ -12,7 +12,6 @@ import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import TablePagination from '@mui/material/TablePagination';
 import Chip from '@mui/material/Chip';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -27,6 +26,7 @@ import Loading from '../components/common/Loading.jsx';
 import ErrorMessage, {
   describeError,
 } from '../components/common/ErrorMessage.jsx';
+import CustomPagination from '../components/common/CustomPagination.jsx';
 import ConfirmDialog from '../components/common/ConfirmDialog.jsx';
 import transferService from '../services/transferService.js';
 import useAuth from '../hooks/useAuth.js';
@@ -299,21 +299,16 @@ export default function Transfers() {
               </Table>
             </Box>
 
-            <TablePagination
-              component="div"
-              count={meta.total}
-              page={page}
-              onPageChange={(_, newPage) =>
-                setPage(newPage)
-              }
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={(e) => {
-                setRowsPerPage(
-                  parseInt(e.target.value, 10)
-                );
+            <CustomPagination
+              page={page + 1}
+              totalCount={meta.total}
+              pageSize={rowsPerPage}
+              onPageChange={(newPage) => setPage(newPage - 1)}
+              onPageSizeChange={(newPageSize) => {
+                setRowsPerPage(newPageSize);
                 setPage(0);
               }}
-              rowsPerPageOptions={[10, 25, 50]}
+              pageSizeOptions={[10, 25, 50]}
             />
           </Paper>
         )

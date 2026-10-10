@@ -23,10 +23,20 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error?.response?.status;
+    const code = error?.response?.data?.details?.code;
     if (status === 401) {
       localStorage.removeItem('ams_token');
       if (window.location.pathname !== '/login') {
         window.location.assign('/login');
+      }
+    }
+    // Defense in depth: the backend also blocks every route but /api/auth/*
+    // while a temporary/reset password hasn't been changed yet. Normally the
+    // frontend router redirects first, but if something slips through,
+    // honor the same rule here.
+    if (status === 403 && code === 'MUST_CHANGE_PASSWORD') {
+      if (window.location.pathname !== '/change-password') {
+        window.location.assign('/change-password');
       }
     }
     return Promise.reject(error);

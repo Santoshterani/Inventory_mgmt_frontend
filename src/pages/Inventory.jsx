@@ -5,17 +5,27 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
+import Button from '@mui/material/Button';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
 import TableBody from '@mui/material/TableBody';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import TablePagination from '@mui/material/TablePagination';
 import Tooltip from '@mui/material/Tooltip';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Alert from '@mui/material/Alert';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Radio from '@mui/material/Radio';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 import Loading from '../components/common/Loading.jsx';
-import ErrorMessage from '../components/common/ErrorMessage.jsx';
+import ErrorMessage, { describeError } from '../components/common/ErrorMessage.jsx';
+import CustomPagination from '../components/common/CustomPagination.jsx';
 import inventoryService from '../services/inventoryService.js';
 import useAuth from '../hooks/useAuth.js';
 import { isBaseScoped } from '../utils/permissions.js';
@@ -23,6 +33,7 @@ import { isBaseScoped } from '../utils/permissions.js';
 export default function Inventory() {
   const { user } = useAuth();
   const baseLocked = isBaseScoped(user?.role);
+  const [addOpen, setAddOpen] = useState(false);
 
   const [baseId, setBaseId] = useState(
     baseLocked ? user?.baseId ?? 'ALL' : 'ALL'
@@ -79,12 +90,19 @@ export default function Inventory() {
   return (
     <Box>
       {/* Page Header */}
-      <Typography
-        variant="h5"
-        sx={{ mb: 2, fontWeight: 600 }}
-      >
-        Inventory
-      </Typography>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: 600 }}
+        >
+          Inventory
+        </Typography>
+        {user?.role === 'ADMIN' && (
+          <Button variant="contained" startIcon={<AddOutlinedIcon />} onClick={() => setAddOpen(true)}>
+            Add inventory
+          </Button>
+        )}
+      </Stack>
 
       {/* Filters */}
       <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
@@ -280,25 +298,144 @@ export default function Inventory() {
               </Table>
             </Box>
 
-            <TablePagination
-              component="div"
-              count={meta.total}
-              page={page}
-              onPageChange={(_, newPage) =>
-                setPage(newPage)
-              }
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={(e) => {
-                setRowsPerPage(
-                  parseInt(e.target.value, 10)
-                );
+            <CustomPagination
+              page={page + 1}
+              totalCount={meta.total}
+              pageSize={rowsPerPage}
+              onPageChange={(newPage) => setPage(newPage - 1)}
+              onPageSizeChange={(newPageSize) => {
+                setRowsPerPage(newPageSize);
                 setPage(0);
               }}
-              rowsPerPageOptions={[10, 25, 50]}
+              pageSizeOptions={[10, 25, 50]}
             />
           </Paper>
         )
       )}
+
+      {user?.role === 'ADMIN' && (
+        <AddInventoryDialog
+          open={addOpen}
+          onClose={() => setAddOpen(false)}
+          onSaved={() => {
+            setAddOpen(false);
+            load();
+          }}
+          bases={meta.bases}
+          equipmentTypes={meta.equipmentTypes}
+        />
+      )}
     </Box>
+  );
+}
+
+function AddInventoryDialog({ open, onClose, onSaved, bases, equipmentTypes }) {
+  const [form, setForm] = useState({ baseId: '', equipmentTypeId: '', quantity: '', mode: 'add', reason: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (open) {
+      setForm({ baseId: '', equipmentTypeId: '', quantity: '', mode: 'add', reason: '' });
+      setError(null);
+    }
+  }, [open]);
+
+  const isValid = form.baseId && form.equipmentTypeId && form.quantity !== '' && Number(form.quantity) >= 0;
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      await inventoryService.upsert({
+        baseId: form.baseId,
+        equipmentTypeId: form.equipmentTypeId,
+        quantity: Number(form.quantity),
+        mode: form.mode,
+        reason: form.reason.trim() || undefined,
+      });
+      onSaved();
+    } catch (err) {
+      setError(describeError(err, 'Unable to update inventory.'));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+      <DialogTitle>Add inventory</DialogTitle>
+      <DialogContent>
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
+        <Stack spacing={2} sx={{ mt: 1 }}>
+          <TextField
+            select
+            label="Base"
+            value={form.baseId}
+            onChange={(e) => setForm({ ...form, baseId: e.target.value })}
+            fullWidth
+          >
+            {bases.map((b) => (
+              <MenuItem key={b.id} value={b.id}>
+                {b.name}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            select
+            label="Equipment type"
+            value={form.equipmentTypeId}
+            onChange={(e) => setForm({ ...form, equipmentTypeId: e.target.value })}
+            fullWidth
+          >
+            {equipmentTypes.map((t) => (
+              <MenuItem key={t.id} value={t.id}>
+                {t.name}
+              </MenuItem>
+            ))}
+          </TextField>
+          <Box>
+            <Typography variant="body2" sx={{ mb: 0.5, fontWeight: 500 }}>
+              Mode
+            </Typography>
+            <RadioGroup
+              row
+              value={form.mode}
+              onChange={(e) => setForm({ ...form, mode: e.target.value })}
+            >
+              <FormControlLabel value="add" control={<Radio size="small" />} label="Add to total" />
+              <FormControlLabel value="set" control={<Radio size="small" />} label="Set total" />
+            </RadioGroup>
+          </Box>
+          <TextField
+            label="Quantity"
+            type="number"
+            inputProps={{ min: 0 }}
+            value={form.quantity}
+            onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+            fullWidth
+          />
+          <TextField
+            label="Reason (optional)"
+            placeholder="e.g. Initial stock load, physical count correction"
+            value={form.reason}
+            onChange={(e) => setForm({ ...form, reason: e.target.value })}
+            fullWidth
+          />
+        </Stack>
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={onClose} disabled={submitting}>
+          Cancel
+        </Button>
+        <Button variant="contained" onClick={handleSubmit} disabled={!isValid || submitting}>
+          {submitting ? 'Saving…' : 'Save'}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

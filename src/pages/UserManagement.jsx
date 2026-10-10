@@ -99,6 +99,7 @@ export default function UserManagement() {
                   <TableRow>
                     <TableCell>Name</TableCell>
                     <TableCell>Username</TableCell>
+                    <TableCell>Service ID</TableCell>
                     <TableCell>Role</TableCell>
                     <TableCell>Base</TableCell>
                     <TableCell>Active</TableCell>
@@ -109,6 +110,7 @@ export default function UserManagement() {
                     <TableRow key={row.id} hover>
                       <TableCell>{row.name}</TableCell>
                       <TableCell className="mono">{row.username}</TableCell>
+                      <TableCell className="mono">{row.serviceId || '—'}</TableCell>
                       <TableCell>
                         <Chip size="small" label={roleLabel(row.role)} />
                       </TableCell>
@@ -125,7 +127,7 @@ export default function UserManagement() {
                   ))}
                   {rows.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                      <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
                         No users found.
                       </TableCell>
                     </TableRow>
@@ -156,6 +158,7 @@ function CreateUserDialog({ open, onClose, onCreated, bases, creatableRoles, loc
   const [form, setForm] = useState({
     name: '',
     username: '',
+    serviceId: '',
     password: '',
     role: '',
     baseId: lockedBaseId ?? '',
@@ -165,7 +168,7 @@ function CreateUserDialog({ open, onClose, onCreated, bases, creatableRoles, loc
 
   useEffect(() => {
     if (open) {
-      setForm({ name: '', username: '', password: '', role: '', baseId: lockedBaseId ?? '' });
+      setForm({ name: '', username: '', serviceId: '', password: '', role: '', baseId: lockedBaseId ?? '' });
       setError(null);
     }
   }, [open, lockedBaseId]);
@@ -174,6 +177,7 @@ function CreateUserDialog({ open, onClose, onCreated, bases, creatableRoles, loc
   const isValid =
     form.name.trim() &&
     form.username.trim() &&
+    form.serviceId.trim() &&
     form.password.length >= 8 &&
     form.role &&
     (!requiresBase || form.baseId);
@@ -185,6 +189,7 @@ function CreateUserDialog({ open, onClose, onCreated, bases, creatableRoles, loc
       await userService.create({
         name: form.name.trim(),
         username: form.username.trim(),
+        serviceId: form.serviceId.trim(),
         password: form.password,
         role: form.role,
         baseId: requiresBase ? form.baseId : undefined,
@@ -217,6 +222,13 @@ function CreateUserDialog({ open, onClose, onCreated, bases, creatableRoles, loc
             label="Username"
             value={form.username}
             onChange={(e) => setForm({ ...form, username: e.target.value })}
+            fullWidth
+          />
+          <TextField
+            label="Service ID"
+            helperText="Unique military/organizational service ID."
+            value={form.serviceId}
+            onChange={(e) => setForm({ ...form, serviceId: e.target.value })}
             fullWidth
           />
           <TextField

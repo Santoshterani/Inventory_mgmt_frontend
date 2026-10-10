@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, Link as RouterLink } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -10,6 +10,7 @@ import Alert from '@mui/material/Alert';
 import InputAdornment from '@mui/material/InputAdornment';
 import IconButton from '@mui/material/IconButton';
 import Divider from '@mui/material/Divider';
+import Link from '@mui/material/Link';
 
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
@@ -379,19 +380,29 @@ export default function Login() {
               />
 
               {/* Password */}
-              <Typography
-                component="label"
-                htmlFor="password"
-                variant="body2"
+              <Box
                 sx={{
-                  display: 'block',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
                   mb: 0.75,
-                  fontWeight: 600,
-                  color: '#26332E',
                 }}
               >
-                Password
-              </Typography>
+                <Typography
+                  component="label"
+                  htmlFor="password"
+                  variant="body2"
+                  sx={{
+                    fontWeight: 600,
+                    color: '#26332E',
+                  }}
+                >
+                  Password
+                </Typography>
+                <Link component={RouterLink} to="/forgot-password" variant="body2" underline="hover">
+                  Forgot password?
+                </Link>
+              </Box>
 
               <TextField
                 id="password"
